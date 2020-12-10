@@ -13,7 +13,7 @@ use Maatwebsite\Excel\Facades\Excel;
 /**
  * Shopify Order
  * 
- * @author kayliongmac11air
+ * @author kayliong
  *
  */
 class ShopifyOrderController extends Controller
@@ -55,73 +55,7 @@ class ShopifyOrderController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\ShopifyOrder  $shopifyOrder
-     * @return \Illuminate\Http\Response
-     */
-    public function show(ShopifyOrder $shopifyOrder)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\ShopifyOrder  $shopifyOrder
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(ShopifyOrder $shopifyOrder)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\ShopifyOrder  $shopifyOrder
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, ShopifyOrder $shopifyOrder)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\ShopifyOrder  $shopifyOrder
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(ShopifyOrder $shopifyOrder)
-    {
-        //
-    }
-    
-    /**
-     * Search by order name, #99999
+     * Search by order name, eg: #99999
      * 
      * @param \Illuminate\Http\Request $request
      * @return \Illuminate\View\View|\Illuminate\Contracts\View\Factory
@@ -160,7 +94,7 @@ class ShopifyOrderController extends Controller
     }
     
     /**
-     * Get by order name, #99999
+     * Get by order name, eg: #99999
      *
      * @param \Illuminate\Http\Request $request
      * @return \Illuminate\View\View|\Illuminate\Contracts\View\Factory
@@ -193,16 +127,13 @@ class ShopifyOrderController extends Controller
     }
     
     /**
-     * Crete new order called by WebHook
+     * Crete new order called by Shopify WebHook
      * 
      * @param array $order
      */
     public function createNewOrder($post = []){
         try{
-            
             $formatted_order=$this->mapOrder($post);
-            
-            //file_put_contents("/var/log/webhook_error.log", "Formated Order :  ".print_r($this->getLineItems(), true) ."\n",FILE_APPEND);
             
             $new_order = new ShopifyOrder();
             $new_order->fill($formatted_order);
@@ -224,11 +155,6 @@ class ShopifyOrderController extends Controller
                     $new_lineitems->save();
                 }
             }
-            
-            
-            //file_put_contents("/var/log/webhook_error.log", "Formated Order :  ".print_r($this->getFulfillments(), true) ."\n",FILE_APPEND);
-            
-            //file_put_contents("/var/log/webhook_error.log", "error webhook create order:  ".$formattedOrder ."\n",FILE_APPEND);
             
         } catch (\Exception $e) {
             // TODO: temp log error this way, for debugging
@@ -304,10 +230,12 @@ class ShopifyOrderController extends Controller
     
     
     /**
+     * Map the fullfillments data chunk 
+     * 
      * @param $json array fulfillments object
      * @param array $order The original order object
      *
-     * @return $this;
+     * @return $this array;
      */
     public function mapFulfillments($json, $order = [])
     {
@@ -368,10 +296,12 @@ class ShopifyOrderController extends Controller
     
     
     /**
+     * Map the LineItems data chunk
+     * 
      * @param $json object line items object
      * @param $order_id int original order
      *
-     * @return $this
+     * @return $this array LineItems
      */
     public function mapLineitems($json, $order_id)
     {
@@ -414,7 +344,9 @@ class ShopifyOrderController extends Controller
     }
     
     /**
-     * @return mixed
+     * Function get order, clean the array
+     * 
+     * @return array
      */
     public function getOrder()
     {
@@ -422,7 +354,9 @@ class ShopifyOrderController extends Controller
     }
     
     /**
-     * @return mixed
+     * Function get lineitems, clean the array
+     * 
+     * @return array
      */
     public function getLineItems()
     {
@@ -430,7 +364,9 @@ class ShopifyOrderController extends Controller
     }
     
     /**
-     * @return mixed
+     * Function get fulfillments, clean the array
+     * 
+     * @return array
      */
     public function getFulfillments()
     {
@@ -474,22 +410,11 @@ class ShopifyOrderController extends Controller
     }
     
     /**
-     * Remove all objects and array from an array/object
-     * @param $object
+     * Clean nested objects
+     * 
+     * @param object $objects
      * @return array
      */
-    protected function cleanArray($object)
-    {
-        
-        $sorted = [];
-        foreach ($object as $key => $value) {
-            if (!is_array($value) && !is_object($value) && !is_null($value)) {
-                $sorted[$key] = $value;
-            }
-        }
-        return $sorted;
-    }
-    
     protected function cleanBulkArray($objects)
     {
         $sorted = [];
@@ -517,6 +442,11 @@ class ShopifyOrderController extends Controller
         return $sorted;
     }
     
+    /**
+     * Export data to excel.
+     * 
+     * @return downloable excel file
+     */
     public function exportTablesToExcel(){
         return Excel::download(new OrderExport, 'Order.xlsx');
     }

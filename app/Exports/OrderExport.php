@@ -16,15 +16,7 @@ use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\FromQuery;
 
 class OrderExport implements FromArray, WithHeadings
-{
-    /**
-    * @return \Illuminate\Support\Collection
-    */
-//     public function collection()
-//     {
-//         return ShopifyOrder::all();
-//     }
-    
+{   
     /**
      * Using Arrays
      * {@inheritDoc}
